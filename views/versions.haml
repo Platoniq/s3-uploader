@@ -1,6 +1,29 @@
-- @objects.each do |o|
-  %tr
-    %td #{o[:date]}
-    %td #{o[:size]} MB
-    %td
-      %a.glyphicon.glyphicon-download(href="#{o[:id]}/download/#{o[:version]}")
+%h5 Public URL
+%form.form-inline
+  %div.form-group
+    %input.url.form-control(type="text" value="#{@public_url}")
+  %button.btn.btn-primary.copy(type="button" title="Copied!")
+    %span.glyphicon.glyphicon-copy
+    Copy
+
+%hr
+
+- if @objects
+  %h5 Object versions
+  %table.table.table-condensed
+    %thead
+      %tr
+        %th.col-s-8 Date
+        %th.col-s-3 Size
+        %th.col-s-1 Action
+        %tbody#versions
+
+  - @objects.each do |o|
+    %tr
+      %td #{o[:date]}
+      %td #{o[:size]} MB
+      %td
+        %a.glyphicon.glyphicon-download(href="#{o[:id]}/download/#{o[:version]}")
+
+- if @message
+  #{@message}

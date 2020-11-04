@@ -3,13 +3,7 @@
     .modal-content
       .modal-header
         %button.close(type="button" data-dismiss="modal") &times;
-        %h4.modal-title Object Versions
+        %h4.modal-title
       .modal-body
-        %table.table.table-condensed
-          %thead
-            %tr
-              %th.col-s-8 Date
-              %th.col-s-3 Size
-              %th.col-s-1 Action
-              %tbody#versions
-        %img#versionloader.img-responsive.img-center(src="loader.gif")
+        %div#modal-content
+        %img#modal-loader.img-responsive.img-center(src="loader.gif")

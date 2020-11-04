@@ -1,15 +1,19 @@
 require 'sinatra'
 require 'aws-sdk'
 
-S3_BUCKET_NAME = ENV['S3_BUCKET_NAME']
+enable :sessions
+set :session_secret, ENV["SESSION_SECRET"] || SecureRandom.hex(64)
+
+S3_BUCKET_NAMES = ENV['S3_BUCKET_NAME'].split(",")
 S3_ENDPOINT = ENV['S3_ENDPOINT']
 S3_REGION = ENV['S3_REGION'] || 'eu-west-1'
 
 s3 = Aws::S3::Client.new(region: S3_REGION, endpoint: S3_ENDPOINT, force_path_style: true, ssl_verify_peer: false)
-signer = Aws::S3::Presigner.new({client: s3})
+signer = Aws::S3::Presigner.new(client: s3)
 
 get "/" do
-  @bucket = S3_BUCKET_NAME
+  @buckets = S3_BUCKET_NAMES
+  save_current_bucket
   if is_s3_connection_working(s3)
     haml :index
   else
@@ -18,7 +22,7 @@ get "/" do
 end
 
 get "/versioning" do
-  s3.get_bucket_versioning({bucket: S3_BUCKET_NAME}).status || "Disabled"
+  versioning_status(s3, current_bucket)
 end
 
 get '/load/:marker/?' do |marker|
@@ -37,33 +41,51 @@ end
 post "/upload" do
   #TODO Forward to error message if upload failed
   key = params['file'][:filename]
-  s3.put_object({bucket: S3_BUCKET_NAME, key: key, body: params['file'][:tempfile].read})
+  s3.put_object({bucket: current_bucket, key: key, body: params['file'][:tempfile].read})
   redirect to('/')
 end
 
 get "/:id/download" do |id|
   key = decode(id)
-  url = signer.presigned_url(:get_object, bucket: S3_BUCKET_NAME, key: key,
+  url = signer.presigned_url(:get_object, bucket: current_bucket, key: key,
                              expires_in: 30, response_content_disposition: 'attachment') 
   redirect to(url)
 end
 
 get "/:id/download/:version" do |id, version|
   key = decode(id)
-  url = signer.presigned_url(:get_object, bucket: S3_BUCKET_NAME, key: key, version_id: version,
+  url = signer.presigned_url(:get_object, bucket: current_bucket, key: key, version_id: version,
                              expires_in: 30, response_content_disposition: 'attachment') 
   redirect to(url)
 end
 
 get "/:id/versions" do |id|
   key = decode(id)
+  obj = Aws::S3::Object.new( bucket_name: current_bucket, key: key)
+  @public_url = obj.public_url
   @objects = []
-  response = s3.list_object_versions({bucket: S3_BUCKET_NAME, prefix: key})
-  response.versions.each do |o|
-    @objects << {key: o.key, size: size_in_mb(o.size),
-                 date: o.last_modified, version: o.version_id, id: encode(o.key)}
+  begin
+    response = s3.list_object_versions(bucket: current_bucket, prefix: key)
+    response.versions.each do |o|
+      @objects << {key: o.key, size: size_in_mb(o.size),
+                   date: o.last_modified, version: o.version_id, id: encode(o.key)}
+    end
+  rescue
+    @message = "No versions available"
   end
   haml :versions
+end
+
+def save_current_bucket
+  session[:bucket] = current_bucket if session[:bucket] != current_bucket
+end
+
+def current_bucket
+  return params[:bucket] if S3_BUCKET_NAMES.include? params[:bucket]
+
+  return session[:bucket] if S3_BUCKET_NAMES.include? session[:bucket]
+  
+  S3_BUCKET_NAMES.first
 end
 
 def size_in_mb(value)
@@ -78,9 +100,17 @@ def decode(value)
   Base64.strict_decode64(value)
 end
 
+def versioning_status(s3, bucket)
+  begin
+    s3.get_bucket_versioning({bucket: bucket}).status || "Disabled"
+  rescue
+    "Disabled"
+  end
+end
+
 def get_reloaded_objects(s3, marker, prefix = '')
   @objects = []
-  response = s3.list_objects({bucket: S3_BUCKET_NAME, max_keys: 100, prefix: prefix, marker: marker})
+  response = s3.list_objects({bucket: current_bucket, max_keys: 100, prefix: prefix, marker: marker})
   response.contents.each do |o|
     @objects << {key: o.key, size: size_in_mb(o.size), date: o.last_modified, id: encode(o.key)}
   end
@@ -89,7 +119,7 @@ end
 
 def is_s3_connection_working(s3)
   begin
-    return s3.list_buckets.buckets.any? {|b| b[:name] == S3_BUCKET_NAME}
+    return s3.list_buckets.buckets.any? {|b| b[:name] == current_bucket}
   rescue
     false
   end

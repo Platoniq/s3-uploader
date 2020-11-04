@@ -1,4 +1,8 @@
-.img-center {margin:0 auto;}
+#loader {text-align: center;}
+#loader img {margin: 0 auto;}
+.form-inline { width: 100% }
+.form-inline .form-group {width: 84%;}
+.form-inline .form-control {width: 100%;}
 .glyphicon{text-decoration: none !important}
 
 .files input {

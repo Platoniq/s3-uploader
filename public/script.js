@@ -51,14 +51,15 @@ $(document).ready(function () {
     $(document).on('click', '.openmodal', function () {
         console.info("clicked");
         var key = $(this).attr('key');
-        $('#versions').empty();
-        $('#versionloader').show();
+        $('#modal-content').empty();
+        $('#modal-loader').show();
         $.ajax({
             url: key + "/versions",
             success: function (data) {
                 if (data) {
-                    $('#versionloader').fadeOut();
-                    $('#versions').append(data);
+                    $('#modal-loader').fadeOut();
+                    $('#modal-content').append(data);
+                    $('.modal-title').html(window.atob(key));
                 }
             }
         });
@@ -70,5 +71,23 @@ $(document).ready(function () {
         if ($(window).scrollTop() == $(document).height() - $(window).height()) {
                 load_more_entries();
         }
+    });
+
+    $(document).on('change', "#select-bucket", function() {
+        var bucket = $(this).val();
+        console.info("change bucket", bucket)
+        location = "/?bucket=" + escape(bucket)
+    });
+
+    $(document).on('focus', "input.url", function() {
+        $(this).select();
+    });
+    $(document).on('click', "button.copy", function() {
+        var input =$(this).closest('form').find("input.url")[0];
+        input.select();
+        input.setSelectionRange(0, 99999); /*For mobile devices*/
+
+        document.execCommand("copy");
+        $(this).tooltip("show");
     });
 });

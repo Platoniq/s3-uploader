@@ -26,6 +26,7 @@ $ docker run -d --name s3uploader \
 -e AWS_SECRET_ACCESS_KEY=secret \
 -e S3_ENDPOINT=https://hostname:port \
 -e S3_BUCKET_NAME=bucketname \
+-e SESSION_SECRET=somesecretforcookies \
 -p 8080:8080
 s3uploader
 ```
@@ -40,6 +41,7 @@ export AWS_ACCESS_KEY_ID='supersecret'
 export AWS_SECRET_ACCESS_KEY='supersecret'
 export S3_ENDPOINT='https://hostname:port'
 export S3_BUCKET_NAME='bucketname'
+export SESSION_SECRET='somesecretforcookies'
 
 shotgun --host 0.0.0.0 --port 8080 s3uploader.rb
 ```

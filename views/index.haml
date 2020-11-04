@@ -1,7 +1,7 @@
-!!! 5
 %html
   %head
     %meta(charset="utf-8")
+    %title S3 uploader 
     %meta(name="viewport" content="width=device-width, initial-scale=1")
     %link(rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
     %link(rel="stylesheet" type="text/css" href="site.css")
@@ -12,17 +12,21 @@
   %body
     .container
       %h1 
-        #{@bucket}:
+        #{current_bucket}:
         %small Upload new file
       .row
         .col-sm-10
           %form#upload(enctype="multipart/form-data" action="/upload" method ="post")
             .form-group.files
-              %label Upload your file
               %input.form-control(name="file" type="file")
             %input.btn.btn-primary.btn-lg(type="submit" value="Upload")
         .col-sm-2#versioning
-          Versioning: #{@versioning_status}
+          %form
+            %label Bucket:
+            %select#select-bucket.form-control
+              - @buckets.each do |bucket|
+                %option{selected: current_bucket == "#{bucket}"} #{bucket}
+          Versioning:
     .container
       %h1 Existing files
       .row
@@ -40,5 +44,7 @@
             %th.col-s-2 Action
         %tbody#files
       #nomore No more results.
-      %img#loader.img-responsive.img-center(src="loader.gif")
+      %div#loader
+        %img.img-responsive(src="loader.gif")
+        Loading #{current_bucket}
     = haml :modal

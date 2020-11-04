@@ -11,12 +11,16 @@
     %script(src="script.js")
   %body
     .container
-      %h1 Upload new file
+      %h1 
+        #{@bucket}:
+        %small Upload new file
       .row
         .col-sm-10
           %form#upload(enctype="multipart/form-data" action="/upload" method ="post")
-            %input(name="file" type="file")
-            %input.btn.btn-default(type="submit" value="Upload")
+            .form-group.files
+              %label Upload your file
+              %input.form-control(name="file" type="file")
+            %input.btn.btn-primary.btn-lg(type="submit" value="Upload")
         .col-sm-2#versioning
           Versioning: #{@versioning_status}
     .container

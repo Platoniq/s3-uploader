@@ -10,13 +10,13 @@ $(document).ready(function () {
         }
         finished_loading = false;
         $('#loader').show();
-        console.log("Updating entries");
+        console.log("Updating entries", marker, prefix);
         $.get('/load/' + marker + '/' + prefix, function (data) {
             if (data) {
                 $('#files').append(data);
                 marker = $('#files tr:last td:first').html();
                 console.log("New Marker: ", marker);
-                marker = window.btoa(marker);
+                marker = window.btoa(escape(marker));
             } else {
                 all_loaded = true;
                 $('#nomore').fadeIn();

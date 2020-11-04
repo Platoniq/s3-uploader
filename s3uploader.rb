@@ -3,11 +3,13 @@ require 'aws-sdk'
 
 S3_BUCKET_NAME = ENV['S3_BUCKET_NAME']
 S3_ENDPOINT = ENV['S3_ENDPOINT']
+S3_REGION = ENV['S3_REGION'] || 'eu-west-1'
 
-s3 = Aws::S3::Client.new(region: 'us-east-1', endpoint: S3_ENDPOINT, force_path_style: true, ssl_verify_peer: false)
+s3 = Aws::S3::Client.new(region: S3_REGION, endpoint: S3_ENDPOINT, force_path_style: true, ssl_verify_peer: false)
 signer = Aws::S3::Presigner.new({client: s3})
 
 get "/" do
+  @bucket = S3_BUCKET_NAME
   if is_s3_connection_working(s3)
     haml :index
   else

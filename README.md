@@ -26,6 +26,7 @@ $ docker run -d --name s3uploader \
 -e AWS_SECRET_ACCESS_KEY=secret \
 -e S3_ENDPOINT=https://hostname:port \
 -e S3_BUCKET_NAME=bucketname \
+-p 8080:8080
 s3uploader
 ```
 

@@ -33,7 +33,7 @@ s3uploader
 
 ### Direct execution via CLI
 
-Requires `sinatra shotgun haml aws-sdk`:
+Requires `sinatra shotgun haml aws-sdk rack-flash3`:
 ```
 #!/bin/sh
 

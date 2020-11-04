@@ -1,8 +1,10 @@
 require 'sinatra'
 require 'aws-sdk'
+require 'rack-flash'
 
-enable :sessions
 set :session_secret, ENV["SESSION_SECRET"] || SecureRandom.hex(64)
+enable :sessions
+use Rack::Flash
 
 S3_BUCKET_NAMES = ENV['S3_BUCKET_NAME'].split(",")
 S3_ENDPOINT = ENV['S3_ENDPOINT']
@@ -43,16 +45,20 @@ end
 get '/load/:marker/:prefix' do |marker, prefix|
   marker = decode(marker)
   prefix = decode(prefix)
-  puts "marker #{marker} prefix #{prefix}"
   @objects = get_reloaded_objects(s3, marker, prefix)
   haml :files
 end
 
 post "/upload" do
   #TODO Forward to error message if upload failed
-  key = params['file'][:filename]
-  s3.put_object({bucket: current_bucket, key: key, body: params['file'][:tempfile].read})
-  redirect to('/')
+  begin
+    key = params[:file][:filename]
+    key = "#{params[:prefix]}#{key}" if params[:prefix]
+    s3.put_object({bucket: current_bucket, key: key, body: params['file'][:tempfile].read})
+  rescue StandardError => e
+    flash[:error] = "Error uploading (#{e.message})"
+  end
+  redirect to(params[:prefix] ? "/d/#{params[:prefix]}" : "/")
 end
 
 get "/:id/download" do |id|
@@ -122,7 +128,6 @@ def get_reloaded_objects(s3, marker, prefix = '')
   @objects = []
   response = s3.list_objects(bucket: current_bucket, max_keys: 100, prefix: prefix, marker: marker, delimiter: "/")
   response.common_prefixes.each do |o|
-    puts o
     @objects << {prefix: o.prefix, id: encode(o.prefix)}
   end
   response.contents.each do |o|

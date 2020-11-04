@@ -19,7 +19,18 @@
           %form#upload(enctype="multipart/form-data" action="/upload" method ="post")
             .form-group.files
               %input.form-control(name="file" type="file")
-            %input.btn.btn-primary.btn-lg(type="submit" value="Upload")
+              %input{type: "hidden", name: "prefix", value: @prefix}
+            - if flash[:error]
+              %div.alert.alert-danger.alert-dismissible 
+                %button.close(type="button" data-dismiss="alert")
+                  .span
+                    &times;
+                #{flash[:error]}
+            %button.btn.btn-primary.btn-lg(type="submit") 
+              - if @prefix.empty?
+                Upload to /
+              - else
+                Upload to #{@prefix}
         .col-sm-2#versioning
           %form
             %label Bucket:

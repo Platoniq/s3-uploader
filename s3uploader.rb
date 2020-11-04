@@ -12,8 +12,17 @@ s3 = Aws::S3::Client.new(region: S3_REGION, endpoint: S3_ENDPOINT, force_path_st
 signer = Aws::S3::Presigner.new(client: s3)
 
 get "/" do
-  @buckets = S3_BUCKET_NAMES
+  @prefix = ""
   save_current_bucket
+  if is_s3_connection_working(s3)
+    haml :index
+  else
+    haml :error
+  end
+end
+
+get "/d/*" do
+  @prefix = params[:splat].first
   if is_s3_connection_working(s3)
     haml :index
   else
@@ -34,6 +43,7 @@ end
 get '/load/:marker/:prefix' do |marker, prefix|
   marker = decode(marker)
   prefix = decode(prefix)
+  puts "marker #{marker} prefix #{prefix}"
   @objects = get_reloaded_objects(s3, marker, prefix)
   haml :files
 end
@@ -97,7 +107,7 @@ def encode(value)
 end
 
 def decode(value)
-  Base64.strict_decode64(value)
+  URI.decode(Base64.strict_decode64(value))
 end
 
 def versioning_status(s3, bucket)
@@ -110,9 +120,14 @@ end
 
 def get_reloaded_objects(s3, marker, prefix = '')
   @objects = []
-  response = s3.list_objects({bucket: current_bucket, max_keys: 100, prefix: prefix, marker: marker})
+  response = s3.list_objects(bucket: current_bucket, max_keys: 100, prefix: prefix, marker: marker, delimiter: "/")
+  response.common_prefixes.each do |o|
+    puts o
+    @objects << {prefix: o.prefix, id: encode(o.prefix)}
+  end
   response.contents.each do |o|
-    @objects << {key: o.key, size: size_in_mb(o.size), date: o.last_modified, id: encode(o.key)}
+    next if o.key.end_with? "/"
+    @objects << {key: o.key.split("/").last, size: size_in_mb(o.size), date: o.last_modified, id: encode(o.key)}
   end
   return @objects
 end

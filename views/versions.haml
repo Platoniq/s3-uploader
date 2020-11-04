@@ -23,7 +23,7 @@
       %td #{o[:date]}
       %td #{o[:size]} MB
       %td
-        %a.glyphicon.glyphicon-download(href="#{o[:id]}/download/#{o[:version]}")
+        %a.glyphicon.glyphicon-download(href="/#{o[:id]}/download/#{o[:version]}")
 
 - if @message
   #{@message}

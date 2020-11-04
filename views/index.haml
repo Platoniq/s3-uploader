@@ -4,12 +4,12 @@
     %title S3 uploader 
     %meta(name="viewport" content="width=device-width, initial-scale=1")
     %link(rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-    %link(rel="stylesheet" type="text/css" href="site.css")
+    %link(rel="stylesheet" type="text/css" href="/site.css")
     %script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js")
     %script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
     %script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.js")
-    %script(src="script.js")
-  %body
+    %script(src="/script.js")
+  %body(data-prefix="#{@prefix}")
     .container
       %h1 
         #{current_bucket}:
@@ -24,11 +24,19 @@
           %form
             %label Bucket:
             %select#select-bucket.form-control
-              - @buckets.each do |bucket|
+              - S3_BUCKET_NAMES.each do |bucket|
                 %option{selected: current_bucket == "#{bucket}"} #{bucket}
           Versioning:
     .container
       %h1 Existing files
+      %ol.breadcrumb
+        %li
+          %a(href="/") Root
+        - pre = "d"
+        - @prefix.split("/").each do |p|
+          - pre = "#{pre}/#{p}"
+          %li
+            %a{href: "/#{pre}/"} #{p}
       .row
         .col-sm-7
         .col-sm-5
@@ -45,6 +53,6 @@
         %tbody#files
       #nomore No more results.
       %div#loader
-        %img.img-responsive(src="loader.gif")
+        %img.img-responsive(src="/loader.gif")
         Loading #{current_bucket}
     = haml :modal

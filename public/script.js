@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var marker = window.btoa('0');
-    var prefix = window.btoa('');
+    var prefix = window.btoa(escape($("body").data("prefix")));
     var all_loaded = false;
     var finished_loading = true;
 
@@ -49,12 +49,12 @@ $(document).ready(function () {
 
 
     $(document).on('click', '.openmodal', function () {
-        console.info("clicked");
         var key = $(this).attr('key');
+        console.info("clicked", key);
         $('#modal-content').empty();
         $('#modal-loader').show();
         $.ajax({
-            url: key + "/versions",
+            url: `/${key}/versions`,
             success: function (data) {
                 if (data) {
                     $('#modal-loader').fadeOut();

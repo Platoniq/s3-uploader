@@ -1,8 +1,14 @@
 - @objects.each do |o|
   %tr
-    %td #{o[:key]}
+    %td 
+      - if o[:prefix]
+        %a(href="/d/#{o[:prefix]}") #{o[:prefix]}
+      - else
+        #{o[:key]}
     %td #{o[:date]}
-    %td #{o[:size]} MB
     %td
-      %a.glyphicon.glyphicon-download(href="#{o[:id]}/download")
+      - if o[:size]
+        #{o[:size]} MB
+    %td
+      %a.glyphicon.glyphicon-download(href="/#{o[:id]}/download")
       %a.openmodal.glyphicon.glyphicon-list(href="#" data-toggle="modal" data-target="#versions-modal" key="#{o[:id]}")

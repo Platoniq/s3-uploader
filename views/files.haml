@@ -13,3 +13,4 @@
       - unless o[:prefix]
         %a.glyphicon.glyphicon-download(href="/#{o[:id]}/download")
         %a.openmodal.glyphicon.glyphicon-list(href="#" data-toggle="modal" data-target="#versions-modal" key="#{o[:id]}")
+        %a.glyphicon.glyphicon-trash.pull-right(href="/#{o[:id]}/destroy" onclick="return confirm('This cannot be undone! Are you sure to delete this?')")

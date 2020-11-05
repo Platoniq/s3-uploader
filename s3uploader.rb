@@ -92,6 +92,25 @@ get "/:id/versions" do |id|
   haml :versions
 end
 
+get "/:id/destroy" do |id|
+  key = decode(id)
+  begin
+    obj = s3.delete_object(bucket: current_bucket, key: key)
+    # Only works for versioned objects
+    if obj.delete_marker
+      flash[:error] = "Object #{key} deleted succesfully!"
+    end
+  rescue StandardError => e
+    flash[:error] = "Error removing object (#{e.message})"
+  end
+
+  url = decode(id).split("/")[0...-1].join("/")
+  url = "/#{url}" unless url.start_with? "/"
+  url = "#{url}/" unless url.end_with? "/"
+  url = "/d#{url}" unless url == "/"
+  redirect url
+end
+
 def save_current_bucket
   session[:bucket] = current_bucket if session[:bucket] != current_bucket
 end

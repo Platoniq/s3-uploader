@@ -77,7 +77,7 @@ end
 
 get "/:id/versions" do |id|
   key = decode(id)
-  obj = Aws::S3::Object.new( bucket_name: current_bucket, key: key)
+  obj = Aws::S3::Object.new(bucket_name: current_bucket, key: key)
   @public_url = obj.public_url
   @objects = []
   begin
@@ -109,11 +109,11 @@ def size_in_mb(value)
 end
 
 def encode(value)
-  Base64.strict_encode64(value)
+  Base64.strict_encode64(URI.encode(value))
 end
 
 def decode(value)
-  URI.decode(Base64.strict_decode64(value))
+  URI.decode(Base64.strict_decode64(value)).force_encoding("UTF-8")
 end
 
 def versioning_status(s3, bucket)
@@ -128,8 +128,9 @@ def get_reloaded_objects(s3, marker, prefix = '')
   @objects = []
   response = s3.list_objects(bucket: current_bucket, max_keys: 100, prefix: prefix, marker: marker, delimiter: "/")
   response.common_prefixes.each do |o|
-    @objects << {prefix: o.prefix, id: encode(o.prefix)}
+    @objects << {prefix: o.prefix, name: o.prefix.split("/").last, id: encode(o.prefix)}
   end
+
   response.contents.each do |o|
     next if o.key.end_with? "/"
     @objects << {key: o.key.split("/").last, size: size_in_mb(o.size), date: o.last_modified, id: encode(o.key)}

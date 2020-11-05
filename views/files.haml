@@ -2,7 +2,7 @@
   %tr
     %td 
       - if o[:prefix]
-        %a(href="/d/#{o[:prefix]}") #{o[:prefix]}
+        %a(href="/d/#{o[:prefix]}") #{o[:name]}/
       - else
         #{o[:key]}
     %td #{o[:date]}
@@ -10,5 +10,6 @@
       - if o[:size]
         #{o[:size]} MB
     %td
-      %a.glyphicon.glyphicon-download(href="/#{o[:id]}/download")
-      %a.openmodal.glyphicon.glyphicon-list(href="#" data-toggle="modal" data-target="#versions-modal" key="#{o[:id]}")
+      - unless o[:prefix]
+        %a.glyphicon.glyphicon-download(href="/#{o[:id]}/download")
+        %a.openmodal.glyphicon.glyphicon-list(href="#" data-toggle="modal" data-target="#versions-modal" key="#{o[:id]}")

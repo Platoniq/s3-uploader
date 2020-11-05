@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var marker = window.btoa('0');
-    var prefix = window.btoa(escape($("body").data("prefix")));
+    var prefix = window.btoa(encodeURI($("body").data("prefix")));
     var all_loaded = false;
     var finished_loading = true;
 
@@ -16,7 +16,7 @@ $(document).ready(function () {
                 $('#files').append(data);
                 marker = $('#files tr:last td:first').html();
                 console.log("New Marker: ", marker);
-                marker = window.btoa(escape(marker));
+                marker = window.btoa(encodeURI(marker));
             } else {
                 all_loaded = true;
                 $('#nomore').fadeIn();
@@ -59,7 +59,7 @@ $(document).ready(function () {
                 if (data) {
                     $('#modal-loader').fadeOut();
                     $('#modal-content').append(data);
-                    $('.modal-title').html(window.atob(key));
+                    $('.modal-title').html(decodeURI(window.atob(key)));
                 }
             }
         });
@@ -76,12 +76,23 @@ $(document).ready(function () {
     $(document).on('change', "#select-bucket", function() {
         var bucket = $(this).val();
         console.info("change bucket", bucket)
-        location = "/?bucket=" + escape(bucket)
+        location = "/?bucket=" + encodeURI(bucket)
+    });
+
+    $(document).on('click', "#new-folder", function(e) {
+        e.preventDefault();
+        var dir = prompt("New folder name:")
+        dir = dir.replace(/\//g, '')
+        if(dir) {
+            dir = "/d/" + $('body').data("prefix") + dir + '/';
+            location = dir
+        }
     });
 
     $(document).on('focus', "input.url", function() {
         $(this).select();
     });
+
     $(document).on('click', "button.copy", function() {
         var input =$(this).closest('form').find("input.url")[0];
         input.select();

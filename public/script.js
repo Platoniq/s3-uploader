@@ -43,7 +43,7 @@ $(document).ready(function () {
     });
 
     $("#prefix").keyup($.debounce(500 ,function () {
-        prefix = window.btoa(this.value);
+        prefix = window.btoa(encodeURI($("body").data("prefix") + this.value));
         reload();
     }));
 

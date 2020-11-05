@@ -56,7 +56,7 @@
         .col-sm-7
         .col-sm-5
           .input-group
-            %span.input-group-addon Filter Prefix
+            %span.input-group-addon Filter Prefix (case sensitive)
             %input#prefix.form-control(type="text")
       %table.table.table-hover
         %thead
@@ -68,6 +68,6 @@
         %tbody#files
       #nomore No more results.
       %div#loader
-        %img.img-responsive(src="/loader.gif")
+        %div.spinner
         Loading #{current_bucket}
     = haml :modal

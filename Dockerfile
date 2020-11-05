@@ -1,5 +1,5 @@
 FROM ruby:alpine
-MAINTAINER Clemens Siebler <clemens.siebler@gmail.com>
+MAINTAINER Ivan Vergés <ivan@platoniq.net>
 
 RUN mkdir /app
 COPY / /app/

@@ -35,8 +35,8 @@ platoniq/s3-uploader:latest
 
 Or build your own Docker image:
 
-```
-$ docker build -t s3uploader .
+```bash
+docker build -t s3uploader .
 ```
 
 Run it:
@@ -57,15 +57,15 @@ s3uploader
 
 Install these gems first:
 
-```
+```bash
 gem install sinatra shotgun haml aws-sdk rack-flash3
-```:
+```
 
 If you are using [rbenv-vars](https://github.com/rbenv/rbenv-vars), just create a file with the variables needed:
 
 `.rbenv-vars`:
 
-```
+```bash
 AWS_ACCESS_KEY_ID=supersecret
 AWS_SECRET_ACCESS_KEY=supersecret
 S3_ENDPOINT=https://hostname:port

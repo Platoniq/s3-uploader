@@ -1,6 +1,6 @@
 # Simple Upload Tool for S3
 
-A simple tool that offers a Web UI to upload/download data to/from NetApp StorageGRID Webscale.
+A simple tool that offers a Web UI to upload/download data for any compatible S3 storage provider.
 
 ## Features
 
@@ -10,6 +10,8 @@ A simple tool that offers a Web UI to upload/download data to/from NetApp Storag
 * Public URL copy
 * Delete objects
 * Folder view & creation supported
+
+> Authentication is not available, you should use this tool behind a proxy that provides SSL and some user authentication.
 
 ![alt text](screenshots/screenshot1.2.png "Screenshot")
 
@@ -72,6 +74,12 @@ S3_ENDPOINT=https://hostname:port
 S3_BUCKET_NAME=bucketname1,buckename2,...
 SESSION_SECRET=somesecretforcookies
 S3_REGION=eu-west-1
+```
+
+Then just run:
+
+```bash
+shotgun --host 0.0.0.0 --port 8080 s3uploader.rb
 ```
 
 Or built a script like:
